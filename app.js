@@ -75,6 +75,7 @@ var routes = require('./routes/index');
 var settings = require('./settings');
 var session = require('express-session');
 var MongoStore = require('connect-mongo')(session);
+var flash = require('connect-flash');
 
 var app = express();
 
@@ -83,6 +84,7 @@ app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
 
 //app.use(favicon(__dirname + '/public/favicon.ico'));
+app.use(flash());  //暂存信息，显示完毕后即被清除
 app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
