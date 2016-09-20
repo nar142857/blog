@@ -10,7 +10,7 @@
 
 var routers = function (app) {
     app.get('/', function (req, res) {
-        res.render('index', {title: 'Express'}); //参数一：模板名称即 views 目录下的模板文件名，参数二：数据
+        res.render('index', {title: 'My Blog'}); //参数一：模板名称即 views 目录下的模板文件名，参数二：数据
     });
     app.get('/reg', function (req, res) {
         res.render('reg', {title: '注册'});
