@@ -76,6 +76,7 @@ var settings = require('./settings');
 var session = require('express-session');
 var MongoStore = require('connect-mongo')(session);
 var flash = require('connect-flash');
+var multer  = require('multer'); //文件上传中间件
 
 var app = express();
 
@@ -90,7 +91,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
-app.use(session({
+app.use(session({                //连接数据库
     resave:false,//添加这行
     saveUninitialized: true,//添加这行
     secret: settings.cookieSecret,
@@ -101,6 +102,13 @@ app.use(session({
         host: settings.host,
         port: settings.port
     })
+}));
+//文件上传
+app.use(multer({
+    dest: './public/images',
+    rename: function (fieldname, filename) {
+        return filename;
+    }
 }));
 
 routes(app);
