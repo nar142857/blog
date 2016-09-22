@@ -77,6 +77,11 @@ var session = require('express-session');
 var MongoStore = require('connect-mongo')(session);
 var flash = require('connect-flash');
 var multer  = require('multer'); //文件上传中间件
+var fs = require('fs');
+
+//添加日志记录
+var accessLog = fs.createWriteStream('access.log', {flags: 'a'});
+var errorLog = fs.createWriteStream('error.log', {flags: 'a'});
 
 var app = express();
 
@@ -87,10 +92,18 @@ app.set('view engine', 'ejs');
 //app.use(favicon(__dirname + '/public/favicon.ico'));
 app.use(flash());  //暂存信息，显示完毕后即被清除
 app.use(logger('dev'));
+app.use(logger({stream: accessLog})); //记录访问日志
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
+
+//错误日志中间件
+app.use(function (err, req, res, next) {
+    var meta = '[' + new Date() + '] ' + req.url + '\n';
+    errorLog.write(meta + err.stack + '\n');
+    next();
+});
 app.use(session({                //连接数据库
     resave:false,//添加这行
     saveUninitialized: true,//添加这行
