@@ -1,0 +1,6 @@
+<!--标签模板-->
+<%- include header %>
+<% posts.forEach(function (tag, index) { %>
+<a class="tag" href="/tags/<%= tag %>"><%= tag %></a>
+<% }) %>
+<%- include footer %>
