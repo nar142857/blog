@@ -26,22 +26,6 @@ module.exports = function(app) {
             });
         });
     });
-
-    //app.get('/', function (req, res) {
-    //    Post.getAll(null, function (err, posts) {
-    //        if (err) {
-    //            posts = [];
-    //        }
-    //        res.render('index', {
-    //            title: '主页',
-    //            user: req.session.user,
-    //            posts: posts,
-    //            success: req.flash('success').toString(),
-    //            error: req.flash('error').toString()
-    //        });
-    //    });
-    //});
-
     app.get('/reg', checkNotLogin);
     app.get('/reg', function (req, res) {
         res.render('reg', {
@@ -199,14 +183,14 @@ module.exports = function(app) {
     });
 
    //进入文章页
-    app.get('/u/:name/:day/:title', function (req, res) {
-        Post.getOne(req.params.name, req.params.day, req.params.title, function (err, post) {
+    app.get('/p/:_id', function (req, res) {
+        Post.getOne(req.params._id, function (err, post) {
             if (err) {
                 req.flash('error', err);
                 return res.redirect('/');
             }
             res.render('article', {
-                title: req.params.title,
+                title: post.title,
                 post: post,
                 user: req.session.user,
                 success: req.flash('success').toString(),
@@ -233,7 +217,7 @@ module.exports = function(app) {
     });
 
     //提交留言进入文章页
-    app.post('/u/:name/:day/:title', function (req, res) {
+    app.post('/p/:_id', function (req, res) {
         var date = new Date(),
             time = date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate() + " " +
                 date.getHours() + ":" + (date.getMinutes() < 10 ? '0' + date.getMinutes() : date.getMinutes());
@@ -249,8 +233,8 @@ module.exports = function(app) {
             time: time,
             content: req.body.content
         };
-        var newComment = new Comment(req.params.name, req.params.day, req.params.title, comment);
-        newComment.save(function (err) {
+        var newComment = new Comment(req.params._id, comment);
+        newComment.save(req.params._id, function (err) {
             if (err) {
                 req.flash('error', err);
                 return res.redirect('back');
@@ -261,10 +245,9 @@ module.exports = function(app) {
     });
 
     //获取编辑页面
-    app.get('/edit/:name/:day/:title', checkLogin);
-    app.get('/edit/:name/:day/:title', function (req, res) {
-        var currentUser = req.session.user;
-        Post.edit(currentUser.name, req.params.day, req.params.title, function (err, post) {
+    app.get('/edit/:_id', checkLogin);
+    app.get('/edit/:_id', function (req, res) {
+        Post.edit(req.params._id, function (err, post) {
             if (err) {
                 req.flash('error', err);
                 return res.redirect('back');
@@ -280,11 +263,11 @@ module.exports = function(app) {
     });
 
     //提交修改后的文章
-    app.post('/edit/:name/:day/:title', checkLogin);
-    app.post('/edit/:name/:day/:title', function (req, res) {
+    app.post('/edit/:_id', checkLogin);
+    app.post('/edit/:_id', function (req, res) {
         var currentUser = req.session.user;
-        Post.update(currentUser.name, req.params.day, req.params.title, req.body.post, function (err) {
-            var url = encodeURI('/u/' + req.params.name + '/' + req.params.day + '/' + req.params.title);
+        Post.update( req.params._id,  req.body.post, function (err) {
+            var url = encodeURI('/p/' + req.params._id );
             if (err) {
                 req.flash('error', err);
                 return res.redirect(url);//出错！返回文章页
@@ -295,8 +278,8 @@ module.exports = function(app) {
     });
 
     //获取删除页
-    app.get('/remove/:name/:day/:title', checkLogin);
-    app.get('/remove/:name/:day/:title', function (req, res) {
+    app.get('/remove/:_id', checkLogin);
+    app.get('/remove/:_id', function (req, res) {
         var currentUser = req.session.user;
         Post.remove(currentUser.name, req.params.day, req.params.title, function (err) {
             if (err) {
